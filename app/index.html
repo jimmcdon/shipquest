@@ -53,6 +53,137 @@
       width: 100%; 
       box-sizing: border-box;
     }
+    
+    .stage {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      transition: all 0.3s;
+    }
+    
+    .stage:hover {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    }
+    
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .stage-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    
+    .stage-status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .stage-status.locked {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    
+    .stage-status.active {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+    
+    .stage-status.completed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    
+    .stage-description {
+      color: #475569;
+      margin: 8px 0 16px 0;
+      font-size: 0.95rem;
+    }
+    
+    .monster-encounter {
+      margin: 16px 0;
+      padding: 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      animation: monsterAppear 0.5s ease-out;
+    }
+    
+    @keyframes monsterAppear {
+      0% { transform: translateY(-10px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    
+    .monster-card {
+      text-align: center;
+    }
+    
+    .monster-emoji {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+    
+    .monster-card h4 {
+      margin: 0 0 8px 0;
+      color: #dc2626;
+      font-size: 1rem;
+    }
+    
+    .monster-card p {
+      color: #7f1d1d;
+      font-style: italic;
+      margin: 0 0 16px 0;
+      font-size: 0.9rem;
+    }
+    
+    .monster-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .stage-btn {
+      width: 100%;
+      margin-top: 12px;
+    }
+    
+    .defeated {
+      background: #f0fdf4 !important;
+      border-color: #bbf7d0 !important;
+      opacity: 0.7;
+    }
+    
+    .defeated .monster-emoji {
+      filter: grayscale(100%);
+    }
+    
+    .achievement-status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: #f1f5f9;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    
+    .achievement-status.unlocked {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    
+    .achievement-status.completed {
+      background: #fef3c7;
+      color: #d97706;
+    }
   </style>
 </head>
 <body>
@@ -129,22 +260,195 @@
 
     <section id="quest">
       <h2>5-Stage Quest</h2>
-      <ol>
-        <li>The Spark (Validate)</li>
-        <li>The Map (Plan)</li>
-        <li>The Forge (Setup)</li>
-        <li>The Build (Develop)</li>
-        <li>The Ship (Deploy)</li>
-      </ol>
+      <div id="quest-stages">
+        <div class="stage" data-stage="1">
+          <div class="stage-header">
+            <h3>Stage 1: The Spark ⚡</h3>
+            <span class="stage-status">Ready</span>
+          </div>
+          <p class="stage-description">Validate your idea and find your first users</p>
+          <div class="stage-monsters" style="display: none;">
+            <div class="monster-encounter">
+              <div class="monster-card">
+                <div class="monster-emoji">🦥</div>
+                <h4>The Procrastination Sloth</h4>
+                <p>"But what if we need this later...?"</p>
+                <div class="monster-actions">
+                  <button class="btn small" onclick="defeatMonster(1, 'sloth')">Use 60-min Timer ⏱️</button>
+                  <button class="btn small secondary" onclick="runFromMonster(1)">Skip (Risk +50% delay)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn stage-btn" onclick="startStage(1)">Enter Stage</button>
+        </div>
+
+        <div class="stage" data-stage="2">
+          <div class="stage-header">
+            <h3>Stage 2: The Map 🗺️</h3>
+            <span class="stage-status locked">Locked</span>
+          </div>
+          <p class="stage-description">Plan your architecture and tech stack</p>
+          <div class="stage-monsters" style="display: none;">
+            <div class="monster-encounter">
+              <div class="monster-card">
+                <div class="monster-emoji">🦋</div>
+                <h4>The Distraction Butterfly</h4>
+                <p>"Have you seen this new JS framework that came out yesterday?"</p>
+                <div class="monster-actions">
+                  <button class="btn small" onclick="defeatMonster(2, 'butterfly')">Follow CLAUDE.md Rules 📋</button>
+                  <button class="btn small secondary" onclick="runFromMonster(2)">Chase Shiny (+2 hours lost)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn stage-btn" onclick="startStage(2)" disabled>Enter Stage</button>
+        </div>
+
+        <div class="stage" data-stage="3">
+          <div class="stage-header">
+            <h3>Stage 3: The Forge 🔨</h3>
+            <span class="stage-status locked">Locked</span>
+          </div>
+          <p class="stage-description">Setup development environment and tools</p>
+          <div class="stage-monsters" style="display: none;">
+            <div class="monster-encounter">
+              <div class="monster-card">
+                <div class="monster-emoji">🧱</div>
+                <h4>The Blocker Golem</h4>
+                <p>"Cannot resolve dependency..."</p>
+                <div class="monster-actions">
+                  <button class="btn small" onclick="defeatMonster(3, 'golem')">Use Docker Container 🐳</button>
+                  <button class="btn small secondary" onclick="runFromMonster(3)">Try Manual Fix (50% failure)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn stage-btn" onclick="startStage(3)" disabled>Enter Stage</button>
+        </div>
+
+        <div class="stage" data-stage="4">
+          <div class="stage-header">
+            <h3>Stage 4: The Build 🏗️</h3>
+            <span class="stage-status locked">Locked</span>
+          </div>
+          <p class="stage-description">Develop core features and functionality</p>
+          <div class="stage-monsters" style="display: none;">
+            <div class="monster-encounter">
+              <div class="monster-card">
+                <div class="monster-emoji">🐛</div>
+                <h4>The Bug Swarm</h4>
+                <p>"Works on my machine..."</p>
+                <div class="monster-actions">
+                  <button class="btn small" onclick="defeatMonster(4, 'bugs')">Write Tests First 🧪</button>
+                  <button class="btn small secondary" onclick="runFromMonster(4)">Skip Tests (Risk chaos)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn stage-btn" onclick="startStage(4)" disabled>Enter Stage</button>
+        </div>
+
+        <div class="stage" data-stage="5">
+          <div class="stage-header">
+            <h3>Stage 5: The Ship 🚀</h3>
+            <span class="stage-status locked">Locked</span>
+          </div>
+          <p class="stage-description">Deploy and launch your product</p>
+          <div class="stage-monsters" style="display: none;">
+            <div class="monster-encounter">
+              <div class="monster-card">
+                <div class="monster-emoji">⏰</div>
+                <h4>The Time Vampire</h4>
+                <p>"It's not quite ready yet..."</p>
+                <div class="monster-actions">
+                  <button class="btn small" onclick="defeatMonster(5, 'vampire')">Hit Ship Button 🚀</button>
+                  <button class="btn small secondary" onclick="runFromMonster(5)">Polish More (+∞ delay)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn stage-btn" onclick="startStage(5)" disabled>Enter Stage</button>
+        </div>
+      </div>
+
+      <div id="game-stats" style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h4 style="margin: 0;">Quest Progress</h4>
+          <button class="btn small danger" onclick="resetGame()" style="font-size: 0.8rem;">Reset Game</button>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+          <div><strong>Level:</strong> <span id="player-level">1</span></div>
+          <div><strong>Monsters Defeated:</strong> <span id="monsters-defeated">0</span></div>
+          <div><strong>Time Saved:</strong> <span id="time-saved">0h</span></div>
+          <div><strong>Current Stage:</strong> <span id="current-stage">1</span></div>
+        </div>
+        <div style="margin-top: 12px;">
+          <div style="background: #e2e8f0; border-radius: 10px; height: 8px;">
+            <div id="progress-bar" style="background: #0f172a; height: 8px; border-radius: 10px; width: 0%; transition: width 0.3s;"></div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="extras">
-      <h2>Advanced Strategies</h2>
-      <ul>
-        <li>Parallel agents (visualization: coming soon)</li>
-        <li>Achievements (coming soon)</li>
-        <li>MCP servers integration (coming soon)</li>
-      </ul>
+      <h2>Achievements</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>🥉 First Quest</h3>
+          <p class="muted">Complete your first stage</p>
+          <div id="achievement-first-quest" class="achievement-status">Locked</div>
+        </div>
+        <div class="card">
+          <h3>⚔️ Monster Hunter</h3>
+          <p class="muted">Defeat 3 monsters using proper tools</p>
+          <div id="achievement-monster-hunter" class="achievement-status">0/3</div>
+        </div>
+        <div class="card">
+          <h3>🚀 Speed Shipper</h3>
+          <p class="muted">Complete all 5 stages</p>
+          <div id="achievement-speed-shipper" class="achievement-status">0/5</div>
+        </div>
+        <div class="card">
+          <h3>⏱️ Time Saver</h3>
+          <p class="muted">Save 10+ hours by defeating monsters</p>
+          <div id="achievement-time-saver" class="achievement-status">0h/10h</div>
+        </div>
+        <div class="card">
+          <h3>🎯 Perfect Run</h3>
+          <p class="muted">Complete all stages without running from monsters</p>
+          <div id="achievement-perfect-run" class="achievement-status">Locked</div>
+        </div>
+        <div class="card">
+          <h3>📈 Level Master</h3>
+          <p class="muted">Reach level 5</p>
+          <div id="achievement-level-master" class="achievement-status">Level 1/5</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 32px;">Power-Ups & Tools</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>⚔️ Claude Sword</h3>
+          <p class="muted">AI-powered code generation and problem solving</p>
+          <div class="btn small">Active</div>
+        </div>
+        <div class="card">
+          <h3>🐳 Docker Shield</h3>
+          <p class="muted">Consistent development environment</p>
+          <div class="btn small secondary">Recommended</div>
+        </div>
+        <div class="card">
+          <h3>🚂 Railway Rocket</h3>
+          <p class="muted">Instant deployment and hosting</p>
+          <div class="btn small secondary">Recommended</div>
+        </div>
+        <div class="card">
+          <h3>🤖 Parallel Agents</h3>
+          <p class="muted">4x development speed with AI assistance</p>
+          <div class="btn small secondary">Advanced</div>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -500,6 +804,320 @@ Please format the response in clean markdown with clear headings and bullet poin
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+
+    // Game mechanics
+    let gameState = {
+      currentStage: 1,
+      level: 1,
+      monstersDefeated: 0,
+      timeSaved: 0,
+      completedStages: [],
+      defeatedMonsters: [],
+      achievements: [],
+      ranFromMonster: false
+    };
+
+    // Load game state from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      loadGameState();
+      updateGameDisplay();
+    });
+
+    function loadGameState() {
+      const saved = localStorage.getItem('shipquest-game-state');
+      if (saved) {
+        gameState = { ...gameState, ...JSON.parse(saved) };
+      }
+    }
+
+    function saveGameState() {
+      localStorage.setItem('shipquest-game-state', JSON.stringify(gameState));
+    }
+
+    function updateGameDisplay() {
+      document.getElementById('player-level').textContent = gameState.level;
+      document.getElementById('monsters-defeated').textContent = gameState.monstersDefeated;
+      document.getElementById('time-saved').textContent = gameState.timeSaved + 'h';
+      document.getElementById('current-stage').textContent = gameState.currentStage;
+      
+      const progress = (gameState.completedStages.length / 5) * 100;
+      document.getElementById('progress-bar').style.width = progress + '%';
+
+      // Update stage statuses
+      for (let i = 1; i <= 5; i++) {
+        const stage = document.querySelector(`[data-stage="${i}"]`);
+        const status = stage.querySelector('.stage-status');
+        const button = stage.querySelector('.stage-btn');
+
+        if (gameState.completedStages.includes(i)) {
+          status.textContent = 'Completed';
+          status.className = 'stage-status completed';
+          button.disabled = true;
+          button.textContent = 'Completed ✓';
+        } else if (i === gameState.currentStage) {
+          status.textContent = 'Active';
+          status.className = 'stage-status active';
+          button.disabled = false;
+          button.textContent = 'Enter Stage';
+        } else if (i < gameState.currentStage) {
+          status.textContent = 'Available';
+          status.className = 'stage-status';
+          button.disabled = false;
+          button.textContent = 'Replay Stage';
+        } else {
+          status.textContent = 'Locked';
+          status.className = 'stage-status locked';
+          button.disabled = true;
+        }
+      }
+
+      // Show defeated monsters
+      gameState.defeatedMonsters.forEach(monsterId => {
+        const monster = document.querySelector(`[data-monster="${monsterId}"]`);
+        if (monster) {
+          monster.classList.add('defeated');
+        }
+      });
+
+      // Update achievements
+      updateAchievements();
+    }
+
+    function updateAchievements() {
+      // First Quest
+      const firstQuest = document.getElementById('achievement-first-quest');
+      if (gameState.completedStages.length >= 1) {
+        firstQuest.textContent = 'Completed ✓';
+        firstQuest.className = 'achievement-status completed';
+        checkNewAchievement('first-quest', 'First Quest Complete!');
+      }
+
+      // Monster Hunter
+      const monsterHunter = document.getElementById('achievement-monster-hunter');
+      if (gameState.monstersDefeated >= 3) {
+        monsterHunter.textContent = 'Completed ✓';
+        monsterHunter.className = 'achievement-status completed';
+        checkNewAchievement('monster-hunter', 'Monster Hunter Achievement Unlocked!');
+      } else {
+        monsterHunter.textContent = `${gameState.monstersDefeated}/3`;
+      }
+
+      // Speed Shipper
+      const speedShipper = document.getElementById('achievement-speed-shipper');
+      if (gameState.completedStages.length >= 5) {
+        speedShipper.textContent = 'Completed ✓';
+        speedShipper.className = 'achievement-status completed';
+        checkNewAchievement('speed-shipper', 'Speed Shipper Master!');
+      } else {
+        speedShipper.textContent = `${gameState.completedStages.length}/5`;
+      }
+
+      // Time Saver
+      const timeSaver = document.getElementById('achievement-time-saver');
+      if (gameState.timeSaved >= 10) {
+        timeSaver.textContent = 'Completed ✓';
+        timeSaver.className = 'achievement-status completed';
+        checkNewAchievement('time-saver', 'Time Master! Saved 10+ hours');
+      } else {
+        timeSaver.textContent = `${gameState.timeSaved}h/10h`;
+      }
+
+      // Perfect Run
+      const perfectRun = document.getElementById('achievement-perfect-run');
+      if (gameState.completedStages.length >= 5 && !gameState.ranFromMonster) {
+        perfectRun.textContent = 'Completed ✓';
+        perfectRun.className = 'achievement-status completed';
+        checkNewAchievement('perfect-run', 'Perfect Run! Never ran from battle');
+      } else if (gameState.ranFromMonster) {
+        perfectRun.textContent = 'Failed';
+        perfectRun.style.color = '#dc2626';
+      }
+
+      // Level Master
+      const levelMaster = document.getElementById('achievement-level-master');
+      if (gameState.level >= 5) {
+        levelMaster.textContent = 'Completed ✓';
+        levelMaster.className = 'achievement-status completed';
+        checkNewAchievement('level-master', 'Level Master! Reached max level');
+      } else {
+        levelMaster.textContent = `Level ${gameState.level}/5`;
+      }
+    }
+
+    function checkNewAchievement(achievementId, message) {
+      if (!gameState.achievements.includes(achievementId)) {
+        gameState.achievements.push(achievementId);
+        showAchievement(message, 'success');
+        saveGameState();
+      }
+    }
+
+    function startStage(stageNumber) {
+      const stage = document.querySelector(`[data-stage="${stageNumber}"]`);
+      const monstersDiv = stage.querySelector('.stage-monsters');
+      const button = stage.querySelector('.stage-btn');
+
+      // Show monster encounter
+      monstersDiv.style.display = 'block';
+      button.textContent = 'In Progress...';
+      button.disabled = true;
+
+      // Add monster identifier for defeat tracking
+      const monster = monstersDiv.querySelector('.monster-encounter');
+      monster.setAttribute('data-monster', `stage-${stageNumber}`);
+
+      saveGameState();
+    }
+
+    function defeatMonster(stageNumber, monsterType) {
+      const stage = document.querySelector(`[data-stage="${stageNumber}"]`);
+      const monstersDiv = stage.querySelector('.stage-monsters');
+      const button = stage.querySelector('.stage-btn');
+      const monster = monstersDiv.querySelector('.monster-encounter');
+
+      // Mark monster as defeated
+      monster.classList.add('defeated');
+      const monsterId = `stage-${stageNumber}`;
+      if (!gameState.defeatedMonsters.includes(monsterId)) {
+        gameState.defeatedMonsters.push(monsterId);
+      }
+
+      // Update stats based on monster type
+      gameState.monstersDefeated++;
+      const timeBonus = getTimeBonus(monsterType);
+      gameState.timeSaved += timeBonus;
+
+      // Complete stage
+      setTimeout(() => {
+        completeStage(stageNumber);
+        showAchievement(`Defeated ${getMonsterName(monsterType)}! +${timeBonus}h saved`);
+      }, 1000);
+
+      saveGameState();
+    }
+
+    function runFromMonster(stageNumber) {
+      const stage = document.querySelector(`[data-stage="${stageNumber}"]`);
+      const monstersDiv = stage.querySelector('.stage-monsters');
+      
+      // Mark that player ran from monster (affects perfect run achievement)
+      gameState.ranFromMonster = true;
+      
+      // Apply penalty but still allow progression
+      const penalty = Math.floor(Math.random() * 3) + 1;
+      setTimeout(() => {
+        completeStage(stageNumber);
+        showAchievement(`Escaped! But lost ${penalty}h to delays...`, 'warning');
+      }, 1500);
+
+      saveGameState();
+    }
+
+    function completeStage(stageNumber) {
+      if (!gameState.completedStages.includes(stageNumber)) {
+        gameState.completedStages.push(stageNumber);
+      }
+
+      if (stageNumber === gameState.currentStage && stageNumber < 5) {
+        gameState.currentStage++;
+      }
+
+      // Level up every 2 stages
+      const newLevel = Math.floor(gameState.completedStages.length / 2) + 1;
+      if (newLevel > gameState.level) {
+        gameState.level = newLevel;
+        showAchievement(`Level Up! Now level ${newLevel}`, 'success');
+      }
+
+      updateGameDisplay();
+
+      // Hide monsters for this stage
+      const stage = document.querySelector(`[data-stage="${stageNumber}"]`);
+      const monstersDiv = stage.querySelector('.stage-monsters');
+      monstersDiv.style.display = 'none';
+
+      saveGameState();
+    }
+
+    function getMonsterName(type) {
+      const names = {
+        'sloth': 'The Procrastination Sloth',
+        'butterfly': 'The Distraction Butterfly', 
+        'golem': 'The Blocker Golem',
+        'bugs': 'The Bug Swarm',
+        'vampire': 'The Time Vampire'
+      };
+      return names[type] || 'Unknown Monster';
+    }
+
+    function getTimeBonus(type) {
+      const bonuses = {
+        'sloth': 2,
+        'butterfly': 3,
+        'golem': 4,
+        'bugs': 5,
+        'vampire': 8
+      };
+      return bonuses[type] || 1;
+    }
+
+    function showAchievement(message, type = 'success') {
+      const achievement = document.createElement('div');
+      achievement.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#16a34a' : type === 'warning' ? '#ea580c' : '#0f172a'};
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      `;
+      
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideIn {
+          0% { transform: translateX(100%); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          0% { transform: translateX(0); opacity: 1; }
+          100% { transform: translateX(100%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      achievement.textContent = message;
+      document.body.appendChild(achievement);
+
+      setTimeout(() => {
+        achievement.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+          document.body.removeChild(achievement);
+        }, 300);
+      }, 3000);
+    }
+
+    function resetGame() {
+      if (confirm('Reset all progress? This cannot be undone.')) {
+        localStorage.removeItem('shipquest-game-state');
+        gameState = {
+          currentStage: 1,
+          level: 1,
+          monstersDefeated: 0,
+          timeSaved: 0,
+          completedStages: [],
+          defeatedMonsters: [],
+          achievements: [],
+          ranFromMonster: false
+        };
+        updateGameDisplay();
+        location.reload();
+      }
     }
   </script>
 </body>

@@ -1,0 +1,13 @@
+{
+  "name": "shipquest",
+  "version": "1.0.0",
+  "description": "Your AI-powered quest from idea to shipped product",
+  "scripts": {
+    "start": "serve app -l tcp://0.0.0.0:${PORT:-3000}",
+    "dev": "serve app -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
+

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShipQuest — Interactive Guide</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#0f172a; background:#f8fafc; }
+    header { padding: 20px 24px; background: #0f172a; color: #fff; }
+    main { padding: 24px; max-width: 960px; margin: 0 auto; }
+    h1 { margin: 0; font-size: 1.75rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .muted { color:#475569; font-size: 0.95rem; }
+    .btn { display:inline-block; padding: 10px 14px; background:#0f172a; color:#fff; border-radius:10px; text-decoration:none; }
+    .btn.secondary { background:#334155; }
+    section + section { margin-top: 28px; }
+    ul { margin: 8px 0 0 20px; }
+    code { background:#f1f5f9; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ShipQuest — Interactive Guide</h1>
+    <p class="muted">Choose your path and start shipping.</p>
+  </header>
+  <main>
+    <section>
+      <h2>Choose Your Character</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Speedrunner</h3>
+          <p class="muted">Fastest path to live product. Minimal steps, maximum momentum.</p>
+          <a class="btn" href="#quest">Start</a>
+        </div>
+        <div class="card">
+          <h3>Architect</h3>
+          <p class="muted">Design it right from day one. Clear specs and structure.</p>
+          <a class="btn" href="#quest">Start</a>
+        </div>
+        <div class="card">
+          <h3>Explorer</h3>
+          <p class="muted">Learn the landscape. Try features, collect insights.</p>
+          <a class="btn" href="#quest">Start</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="spec">
+      <h2>Spec Generator (Minimal)</h2>
+      <p class="muted">Describe your product and constraints. Keep it short to start.</p>
+      <textarea id="spec-input" rows="6" style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1;" placeholder="Product idea, audience, core features..."></textarea>
+      <div style="margin-top:10px;">
+        <button class="btn" onclick="generatePlan()">Generate Plan</button>
+        <button class="btn secondary" onclick="clearSpec()">Clear</button>
+      </div>
+      <pre id="spec-output" style="white-space:pre-wrap; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-top:12px;"></pre>
+    </section>
+
+    <section id="quest">
+      <h2>5-Stage Quest</h2>
+      <ol>
+        <li>The Spark (Validate)</li>
+        <li>The Map (Plan)</li>
+        <li>The Forge (Setup)</li>
+        <li>The Build (Develop)</li>
+        <li>The Ship (Deploy)</li>
+      </ol>
+    </section>
+
+    <section id="extras">
+      <h2>Advanced Strategies</h2>
+      <ul>
+        <li>Parallel agents (visualization: coming soon)</li>
+        <li>Achievements (coming soon)</li>
+        <li>MCP servers integration (coming soon)</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    function generatePlan() {
+      const input = document.getElementById('spec-input').value.trim();
+      const output = document.getElementById('spec-output');
+      if (!input) { output.textContent = 'Please enter a brief spec to generate a plan.'; return; }
+      const plan = [
+        'Plan:',
+        '- Define MVP scope (1-2 core features).',
+        '- Prepare data model and basic UI skeleton.',
+        '- Build, test locally, deploy quickly.',
+        '- Gather feedback, iterate fast.'
+      ].join('\n');
+      output.textContent = plan;
+    }
+    function clearSpec() {
+      document.getElementById('spec-input').value = '';
+      document.getElementById('spec-output').textContent = '';
+    }
+  </script>
+</body>
+<!-- Minimal scaffold. Future: integrate real steps, state, and persistence. -->
+</html>
+

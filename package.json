@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "Your AI-powered quest from idea to shipped product",
   "scripts": {
-    "start": "serve app -l tcp://0.0.0.0:${PORT:-3000}",
-    "dev": "serve app -l 3000"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "static": "serve app -l tcp://0.0.0.0:${PORT:-3000}"
   },
   "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
     "serve": "^14.2.0"
   }
 }

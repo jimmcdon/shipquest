@@ -12,11 +12,47 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; }
     .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
     .muted { color:#475569; font-size: 0.95rem; }
-    .btn { display:inline-block; padding: 10px 14px; background:#0f172a; color:#fff; border-radius:10px; text-decoration:none; }
+    .btn { display:inline-block; padding: 10px 14px; background:#0f172a; color:#fff; border-radius:10px; text-decoration:none; border: none; cursor: pointer; font-size: 0.9rem; }
+    .btn:disabled { background:#94a3b8; cursor: not-allowed; }
     .btn.secondary { background:#334155; }
+    .btn.danger { background:#dc2626; }
+    .btn.small { padding: 8px 12px; font-size: 0.85rem; }
     section + section { margin-top: 28px; }
     ul { margin: 8px 0 0 20px; }
     code { background:#f1f5f9; padding:2px 6px; border-radius:6px; }
+    
+    .api-key-container { position: relative; }
+    .api-key-input-group { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+    .api-key-input-wrapper { flex: 1; position: relative; }
+    .api-key-controls { display: flex; gap: 6px; }
+    .api-key-status { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; margin-top: 4px; padding: 4px 0; }
+    .api-key-status.valid { color: #059669; }
+    .api-key-status.invalid { color: #dc2626; }
+    .api-key-status.testing { color: #0369a1; }
+    
+    .spinner { 
+      display: inline-block; 
+      width: 12px; 
+      height: 12px; 
+      border: 2px solid #e5e7eb; 
+      border-top: 2px solid #0369a1; 
+      border-radius: 50%; 
+      animation: spin 1s linear infinite; 
+    }
+    
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .masked-key { 
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; 
+      font-size: 0.9rem; 
+      color: #475569; 
+      background: #f8fafc; 
+      padding: 12px; 
+      border: 1px solid #cbd5e1; 
+      border-radius: 10px; 
+      width: 100%; 
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
@@ -50,10 +86,23 @@
       <h2>AI Spec Generator</h2>
       <p class="muted">Describe your product idea and let Claude generate a detailed spec for you.</p>
       
-      <div style="margin-bottom: 16px;">
+      <div class="api-key-container" style="margin-bottom: 16px;">
         <label for="api-key" style="display: block; margin-bottom: 6px; font-weight: 500;">Claude API Key:</label>
-        <input type="password" id="api-key" placeholder="sk-ant-..." style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1; margin-bottom: 8px;">
-        <p class="muted" style="font-size: 0.85rem; margin: 0;">Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0f172a;">console.anthropic.com</a></p>
+        
+        <div class="api-key-input-group">
+          <div class="api-key-input-wrapper">
+            <input type="password" id="api-key" placeholder="sk-ant-..." style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1; box-sizing: border-box;">
+            <div id="masked-key-display" class="masked-key" style="display: none;"></div>
+          </div>
+          <div class="api-key-controls">
+            <button class="btn small" id="test-key-btn" onclick="testApiKey()" disabled>Test</button>
+            <button class="btn small danger" id="clear-key-btn" onclick="clearApiKey()" style="display: none;">Clear</button>
+          </div>
+        </div>
+        
+        <div id="api-key-status" class="api-key-status" style="display: none;"></div>
+        
+        <p class="muted" style="font-size: 0.85rem; margin: 8px 0 0 0;">Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0f172a;">console.anthropic.com</a></p>
       </div>
       
       <textarea id="spec-input" rows="6" style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1;" placeholder="Describe your product idea, target audience, key features, constraints, tech preferences, etc..."></textarea>
@@ -100,20 +149,236 @@
   </main>
 
   <script>
-    // Load API key from localStorage on page load
+    let currentSpec = '';
+    let keyValidationState = {
+      isValid: false,
+      isTestInProgress: false,
+      lastValidation: null
+    };
+    let debounceTimer = null;
+
+    // Load API key and validation state from localStorage on page load
     document.addEventListener('DOMContentLoaded', function() {
-      const savedApiKey = localStorage.getItem('claude-api-key');
-      if (savedApiKey) {
-        document.getElementById('api-key').value = savedApiKey;
-      }
-      
-      // Save API key to localStorage when changed
-      document.getElementById('api-key').addEventListener('input', function(e) {
-        localStorage.setItem('claude-api-key', e.target.value);
-      });
+      loadApiKeyState();
+      setupApiKeyHandlers();
+      updateGenerateButtonState();
     });
 
-    let currentSpec = '';
+    function loadApiKeyState() {
+      const savedApiKey = localStorage.getItem('claude-api-key');
+      const validationState = JSON.parse(localStorage.getItem('claude-api-validation') || '{}');
+      
+      if (savedApiKey) {
+        document.getElementById('api-key').value = savedApiKey;
+        keyValidationState = { ...keyValidationState, ...validationState };
+        
+        if (savedApiKey.length > 14) {
+          showMaskedKey(savedApiKey);
+        }
+        
+        if (keyValidationState.lastValidation) {
+          showValidationStatus(
+            keyValidationState.isValid,
+            keyValidationState.isValid ? 'API Key Valid!' : keyValidationState.lastValidation.error || 'Invalid API Key'
+          );
+        }
+        
+        document.getElementById('clear-key-btn').style.display = 'inline-block';
+        updateTestButtonState();
+      }
+    }
+
+    function setupApiKeyHandlers() {
+      const apiKeyInput = document.getElementById('api-key');
+      
+      // Handle input changes with debounce
+      apiKeyInput.addEventListener('input', function(e) {
+        const value = e.target.value.trim();
+        
+        // Save to localStorage immediately
+        if (value) {
+          localStorage.setItem('claude-api-key', value);
+        } else {
+          localStorage.removeItem('claude-api-key');
+        }
+        
+        // Clear previous validation state
+        clearValidationState();
+        
+        // Show/hide controls based on input
+        if (value) {
+          document.getElementById('clear-key-btn').style.display = 'inline-block';
+          if (value.length > 14) {
+            showMaskedKey(value);
+          } else {
+            hideMaskedKey();
+          }
+        } else {
+          document.getElementById('clear-key-btn').style.display = 'none';
+          hideMaskedKey();
+        }
+        
+        updateTestButtonState();
+        updateGenerateButtonState();
+        
+        // Auto-test with debounce if format looks valid
+        if (debounceTimer) clearTimeout(debounceTimer);
+        if (value && isValidKeyFormat(value)) {
+          debounceTimer = setTimeout(() => testApiKey(true), 1500);
+        }
+      });
+
+      // Handle paste events
+      apiKeyInput.addEventListener('paste', function() {
+        setTimeout(() => {
+          const value = apiKeyInput.value.trim();
+          if (value && isValidKeyFormat(value)) {
+            setTimeout(() => testApiKey(true), 500);
+          }
+        }, 100);
+      });
+    }
+
+    function isValidKeyFormat(key) {
+      return key.startsWith('sk-ant-') && key.length > 20;
+    }
+
+    function showMaskedKey(key) {
+      const masked = key.substring(0, 10) + '...' + key.substring(key.length - 4);
+      document.getElementById('masked-key-display').textContent = masked;
+      document.getElementById('masked-key-display').style.display = 'block';
+      document.getElementById('api-key').style.display = 'none';
+    }
+
+    function hideMaskedKey() {
+      document.getElementById('masked-key-display').style.display = 'none';
+      document.getElementById('api-key').style.display = 'block';
+    }
+
+    function updateTestButtonState() {
+      const apiKey = document.getElementById('api-key').value.trim();
+      const testBtn = document.getElementById('test-key-btn');
+      
+      testBtn.disabled = !apiKey || keyValidationState.isTestInProgress;
+    }
+
+    function updateGenerateButtonState() {
+      const generateBtn = document.getElementById('generate-btn');
+      generateBtn.disabled = !keyValidationState.isValid;
+    }
+
+    async function testApiKey(isAutoTest = false) {
+      const apiKey = document.getElementById('api-key').value.trim();
+      
+      if (!apiKey) {
+        showValidationStatus(false, 'No API key provided');
+        return;
+      }
+
+      if (!isValidKeyFormat(apiKey)) {
+        showValidationStatus(false, 'Invalid format - should start with sk-ant-');
+        return;
+      }
+
+      keyValidationState.isTestInProgress = true;
+      updateTestButtonState();
+      
+      if (!isAutoTest) {
+        showValidationStatus(null, 'Testing API key...', true);
+      }
+
+      try {
+        const response = await fetch('/api/claude', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            apiKey: apiKey,
+            model: 'claude-3-sonnet-20240229',
+            max_tokens: 10,
+            messages: [{
+              role: 'user',
+              content: 'Hi'
+            }]
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          let errorMessage = 'Invalid API Key - Check your key';
+          
+          if (response.status === 401) {
+            errorMessage = 'Invalid API Key - Check your key';
+          } else if (response.status === 429) {
+            errorMessage = 'Rate limited - Try again later';
+          } else if (response.status >= 500) {
+            errorMessage = 'Server error - Try again later';
+          } else if (errorData.error?.message) {
+            errorMessage = errorData.error.message;
+          }
+          
+          throw new Error(errorMessage);
+        }
+
+        // Key is valid
+        keyValidationState.isValid = true;
+        keyValidationState.lastValidation = { timestamp: Date.now(), success: true };
+        showValidationStatus(true, 'API Key Valid!');
+        
+        // Save validation state
+        localStorage.setItem('claude-api-validation', JSON.stringify(keyValidationState));
+
+      } catch (error) {
+        console.error('API key test failed:', error);
+        
+        let errorMessage = error.message;
+        if (error.message.includes('fetch')) {
+          errorMessage = 'Connection failed - check internet';
+        }
+        
+        keyValidationState.isValid = false;
+        keyValidationState.lastValidation = { timestamp: Date.now(), success: false, error: errorMessage };
+        showValidationStatus(false, errorMessage);
+        
+        // Save validation state
+        localStorage.setItem('claude-api-validation', JSON.stringify(keyValidationState));
+      } finally {
+        keyValidationState.isTestInProgress = false;
+        updateTestButtonState();
+        updateGenerateButtonState();
+      }
+    }
+
+    function showValidationStatus(isValid, message, isLoading = false) {
+      const statusDiv = document.getElementById('api-key-status');
+      const statusClass = isLoading ? 'testing' : (isValid ? 'valid' : 'invalid');
+      const icon = isLoading ? '<div class="spinner"></div>' : (isValid ? '✅' : '❌');
+      
+      statusDiv.className = `api-key-status ${statusClass}`;
+      statusDiv.innerHTML = `${icon} ${message}`;
+      statusDiv.style.display = 'flex';
+    }
+
+    function clearValidationState() {
+      keyValidationState.isValid = false;
+      keyValidationState.lastValidation = null;
+      document.getElementById('api-key-status').style.display = 'none';
+      localStorage.removeItem('claude-api-validation');
+      updateGenerateButtonState();
+    }
+
+    function clearApiKey() {
+      document.getElementById('api-key').value = '';
+      localStorage.removeItem('claude-api-key');
+      localStorage.removeItem('claude-api-validation');
+      
+      clearValidationState();
+      hideMaskedKey();
+      document.getElementById('clear-key-btn').style.display = 'none';
+      updateTestButtonState();
+      updateGenerateButtonState();
+    }
 
     async function generateSpec() {
       const apiKey = document.getElementById('api-key').value.trim();
@@ -123,8 +388,8 @@
       const generateBtn = document.getElementById('generate-btn');
       const loading = document.getElementById('loading');
 
-      if (!apiKey) {
-        alert('Please enter your Claude API key first.');
+      if (!keyValidationState.isValid) {
+        alert('Please test and validate your API key first.');
         return;
       }
 
@@ -155,14 +420,13 @@ ${input}
 Please format the response in clean markdown with clear headings and bullet points. Be specific and actionable while keeping it concise.`;
 
       try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        const response = await fetch('/api/claude', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
+            apiKey: apiKey,
             model: 'claude-3-sonnet-20240229',
             max_tokens: 4000,
             messages: [{
@@ -189,7 +453,7 @@ Please format the response in clean markdown with clear headings and bullet poin
         output.textContent = `Error: ${error.message}\n\nPlease check your API key and try again.`;
         outputContainer.style.display = 'block';
       } finally {
-        generateBtn.disabled = false;
+        generateBtn.disabled = !keyValidationState.isValid;
         loading.style.display = 'none';
       }
     }

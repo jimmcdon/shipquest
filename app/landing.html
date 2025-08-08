@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShipQuest - Ship Your First Product in 30 Days</title>
+  <meta name="description" content="Go from idea to first dollar in 30 days. Defeat your monsters. Ship something real.">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #FAFAFA;
+      color: #1A1A1A;
+      line-height: 1.5;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 3rem;
+      color: #1A1A1A;
+    }
+
+    .journey {
+      margin-bottom: 2.5rem;
+      padding: 0 1rem;
+    }
+
+    .journey-visualization {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      font-size: 1.125rem;
+    }
+
+    .journey-start, .journey-end {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .emoji {
+      font-size: 1.5rem;
+    }
+
+    .label {
+      font-size: 0.875rem;
+      color: #6B7280;
+      font-weight: 500;
+    }
+
+    .money {
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+
+    .progress-track {
+      flex: 1;
+      margin: 0 2rem;
+      position: relative;
+    }
+
+    .progress-dots {
+      letter-spacing: 0.1em;
+      color: #D1D5DB;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.875rem;
+    }
+
+    .you-are-here {
+      font-size: 0.75rem;
+      color: #6B7280;
+      margin-top: 0.25rem;
+    }
+
+    .promise {
+      margin-bottom: 2.5rem;
+    }
+
+    .headline {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .subline {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #6B7280;
+    }
+
+    .cta {
+      display: inline-block;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      background: #2563EB;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin-bottom: 3rem;
+    }
+
+    .cta:hover {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+    }
+
+    .cta:active {
+      transform: translateY(0);
+    }
+
+    .cta:disabled {
+      background: #9CA3AF;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .counter {
+      color: #6B7280;
+      font-size: 0.875rem;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 1rem;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .journey-visualization {
+        font-size: 1rem;
+      }
+
+      .progress-track {
+        margin: 0 1rem;
+      }
+
+      .progress-dots {
+        font-size: 0.75rem;
+      }
+
+      .headline, .subline {
+        font-size: 1.25rem;
+      }
+
+      .cta {
+        width: 100%;
+        max-width: 280px;
+        padding: 1rem 1.5rem;
+      }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 380px) {
+      .emoji {
+        font-size: 1.25rem;
+      }
+
+      .progress-track {
+        margin: 0 0.5rem;
+      }
+
+      .progress-dots {
+        font-size: 0.625rem;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      opacity: 0.7;
+    }
+
+    .pulse {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">ShipQuest</div>
+    
+    <div class="journey">
+      <div class="journey-visualization">
+        <div class="journey-start">
+          <span class="emoji">😰</span>
+          <span class="label">Day 1</span>
+          <span class="money">$0</span>
+        </div>
+        
+        <div class="progress-track">
+          <div class="progress-dots">◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦◦</div>
+          <div class="you-are-here">↑ you are here</div>
+        </div>
+        
+        <div class="journey-end">
+          <span class="emoji">💰</span>
+          <span class="label">Day 30</span>
+          <span class="money">$</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="promise">
+      <div class="headline">Defeat your monsters.</div>
+      <div class="subline">Ship something real.</div>
+    </div>
+    
+    <button class="cta" onclick="startQuest()">Start Quest →</button>
+    
+    <div class="counter" id="player-counter">
+      <span class="pulse">Loading players...</span>
+    </div>
+  </div>
+
+  <script>
+    // Load player count
+    async function loadPlayerCount() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        document.getElementById('player-counter').innerHTML = 
+          `${data.playersActive} players on the journey`;
+      } catch (error) {
+        // Fallback to static number if API fails
+        document.getElementById('player-counter').innerHTML = 
+          '1,234 players on the journey';
+      }
+    }
+
+    // Handle CTA click
+    function startQuest() {
+      const btn = document.querySelector('.cta');
+      btn.textContent = 'Loading your quest...';
+      btn.disabled = true;
+      btn.classList.add('loading');
+      
+      // Add slight delay for better UX
+      setTimeout(() => {
+        window.location.href = '/quest';
+      }, 600);
+    }
+
+    // Load player count on page load
+    document.addEventListener('DOMContentLoaded', loadPlayerCount);
+
+    // Update player count every 60 seconds
+    setInterval(loadPlayerCount, 60000);
+
+    // Handle return visitors
+    if (localStorage.getItem('shipquest-visited')) {
+      document.querySelector('.cta').textContent = 'Continue Quest →';
+    } else {
+      localStorage.setItem('shipquest-visited', 'true');
+    }
+  </script>
+</body>
+</html>
